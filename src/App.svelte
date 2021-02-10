@@ -15,12 +15,13 @@
   let markerLocations = [];
   let colors;
   let lines;
+  let searchTerm = '';
 
   onMount(async () => {
     const res = await fetch('__CSV_FILE__')
     const text = await res.text()
 
-    const rows = text.split('\n').map(str => str.split(','))
+    const rows = text.split('\n').map(str => str.split(';'))
     const headers = rows.shift();
     parsedRows = rows
       //.filter(row => row.length === headers.length)
@@ -31,16 +32,21 @@
         readRow.Y = +readRow.Y
         return readRow
       })
-      .filter(row => +row.X);
-    markerLocations = parsedRows.map(item => [item.Y, item.X])
-    console.log("loaded", markerLocations.length);
+      .filter(row => +row.X)
+    console.log("loaded", parsedRows.length);
   })
 
+  $: markerLocations = parsedRows
+    .filter(item => (item.label.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1))
+    .map(item => {
+      return {latLng: [item.Y, item.X], label: item.label}
+    })
+
   $: colors = scaleSequential(interpolateRainbow).domain([0, markerLocations.length - 1]);
-  $: lines = markerLocations.slice(1).map((latLng, i) => {
-		let prev = markerLocations[i];
+  $: lines = markerLocations.slice(1).map((item, i) => {
+		let prev = markerLocations[0].latLng;
 		return {
-			latLngs: [prev, latLng],
+			latLngs: [prev, item.latLng],
 			color: colors(i),
 		}
 	});
@@ -61,17 +67,18 @@
 </script>
 <svelte:window on:resize={resizeMap} />
 
+
 <Leaflet bind:map view={initialView} zoom={6}>
   <Control position="topright">
-    <MapToolbar bind:eye bind:lines={showLines} on:click-reset={resetMapView} />
+    <MapToolbar bind:searchTerm bind:eye bind:lines={showLines} on:click-reset={resetMapView} />
   </Control>
 
   {#if eye }
-    {#each markerLocations as latLng, ind}
+    {#each markerLocations as {latLng, label}}
       <Marker {latLng} width={30} height={30}>
         <svg style="width:20px;height:20px" class="w-6 h-6" data-darkreader-inline-fill="none" data-darkreader-inline-stroke="" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
 
-        <Popup>{parsedRows[ind]['label']}</Popup>
+        <Popup>{label}</Popup>
       </Marker> 
     {/each}
   {/if}

@@ -3,6 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 	export let eye = true;
+	export let searchTerm = '';
 	function clickEye() {
 		eye = !eye;
 		dispatch('click-eye', eye);
@@ -35,7 +36,74 @@
 		background-opacity: 50%;
 		background-color: lightgray;
 	}
+
+  .input {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    box-shadow: none;
+    display: inline-flex;
+    font-size: 1rem;
+    height: 2.5em;
+    justify-content: flex-start;
+    line-height: 1.5;
+    padding-bottom: calc(0.5em - 1px);
+    padding-left: calc(0.75em - 1px);
+    padding-right: calc(0.75em - 1px);
+    padding-top: calc(0.5em - 1px);
+    position: relative;
+    vertical-align: top;
+  }
+
+  .input.is-rounded {
+    border-radius: 290486px;
+    padding-left: calc(calc(0.75em - 1px) + 0.375em);
+    padding-right: calc(calc(0.75em - 1px) + 0.375em);
+  }
+
+  .input {
+    background-color: white;
+    border-color: #dbdbdb;
+    border-radius: 4px;
+    color: #363636;
+    box-shadow: inset 0 0.0625em 0.125em rgba(10, 10, 10, 0.05);
+  }
+
+  .input::-moz-placeholder {
+    color: rgba(54, 54, 54, 0.3);
+  }
+
+  .input::-webkit-input-placeholder {
+    color: rgba(54, 54, 54, 0.3);
+  }
+
+  .input:-moz-placeholder {
+    color: rgba(54, 54, 54, 0.3);
+  }
+
+  .input:-ms-input-placeholder {
+    color: rgba(54, 54, 54, 0.3);
+  }
+
+  .input:hover {
+    border-color: #b5b5b5;
+  }
+
+  .input:focus {
+    border-color: #3273dc;
+    box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
+  }
+
 </style>
+
+<input class="input" 
+       name="input filter" 
+       type="text" 
+       placeholder="" 
+       bind:value={searchTerm} 
+       >
 
 <!-- Icons from heroicons.dev -->
 
